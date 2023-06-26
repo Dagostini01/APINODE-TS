@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User { //@ é decorator
+  id String @id @default(uuid()) //@id avisa o prisma que isso é o id da aplicacao / @default(uuid()) gera id por padrão na tabela
+  email String @unique //@unique nao deixa criar com o email igual
+  name String
+  created_ap DateTime @default(now()) //grava data criacao
+  updated_at DateTime @updatedAt //grava data quando fizer update
+  movie_rent MoviesRend[] @relation("user")
+  @@map("users") //renomeia como vai criar a tabela no bando de User para users
+}
+
+model Movie {
+  id String @id @default(uuid())
+  title String @unique
+  duration Int
+  release_date DateTime
+  movie_rent MoviesRend[] @relation("movie")
+  @@map("movies")
+}
+
+model MoviesRend {
+  userId String
+  user User @relation("user", fields:[userId], references: [id])
+  movieId String
+  movie Movie @relation("movie", fields: [movieId], references: [id])
+  @@id([userId, movieId])
+  @@map("movie_rent")
+}
+
